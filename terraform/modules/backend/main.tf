@@ -6,7 +6,7 @@ resource "azurerm_resource_group" "backend" {
 
 # Create the Storage Account
 resource "azurerm_storage_account" "state" {
-  name                     = "st8918${var.group_number}${random_string.suffix.result}"
+  name                     = "st8918group${var.group_number}"
   resource_group_name      = azurerm_resource_group.backend.name
   location                 = azurerm_resource_group.backend.location
   account_tier             = "Standard"
