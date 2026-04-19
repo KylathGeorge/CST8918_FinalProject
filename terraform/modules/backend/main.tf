@@ -10,7 +10,7 @@ resource "azurerm_storage_account" "state" {
   resource_group_name      = azurerm_resource_group.backend.name
   location                 = azurerm_resource_group.backend.location
   account_tier             = "Standard"
-  replication_type         = "LRS"
+  account_replication_type = "LRS"
   tags                     = var.tags  
 }
 
