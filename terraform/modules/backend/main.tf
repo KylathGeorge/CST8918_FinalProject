@@ -11,7 +11,7 @@ resource "azurerm_storage_account" "state" {
   location                 = azurerm_resource_group.backend.location
   account_tier             = "Standard"
   replication_type         = "LRS"
-  allow_nested_items_to_pull_separate_account_keys = false
+  tags                     = var.tags  
 }
 
 # Create the Container for the .tfstate file
