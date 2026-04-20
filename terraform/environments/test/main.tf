@@ -36,7 +36,11 @@ module "network_test" {
   source              = "../../modules/basic-network-infrastructure"
   resource_group_name = var.resource_group_name
   location            = var.location
-  tags                = var.tags
+  
+  tags = {
+    environment = "test"
+    project     = "cst8918-final-project"
+  }
 }
 
 output "cluster_name" {
