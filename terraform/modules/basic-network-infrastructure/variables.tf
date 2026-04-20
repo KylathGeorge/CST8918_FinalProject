@@ -1,6 +1,6 @@
-variable "group_number" {
+variable "resource_group_name" {
+  description = "Name of the resource group"
   type        = string
-  description = "The group number (e.g., 5) used for naming"
 }
 
 variable "location" {
