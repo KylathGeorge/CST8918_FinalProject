@@ -33,6 +33,13 @@ module "aks_prod" {
   }
 }
 
+module "network_prod" {
+  source              = "../../modules/network"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
+}
+
 output "cluster_name" {
   value = module.aks_prod.cluster_name
 }
