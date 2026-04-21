@@ -31,6 +31,13 @@ jobs:
       - name: Terraform Init (test)
         run: terraform -chdir=terraform/environments/test init
 
+      - name: Import existing resource group (test)
+        run: |
+          terraform -chdir=terraform/environments/test import \
+            module.backend_test.azurerm_resource_group.backend \
+            "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/cst8918-final-project-group-5-test" \
+            || true
+
       - name: Terraform Apply (test)
         run: terraform -chdir=terraform/environments/test apply -auto-approve
 
