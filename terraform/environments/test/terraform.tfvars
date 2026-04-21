@@ -1,11 +1,11 @@
 # --- Person A fills these in ---
-resource_group_name = "REPLACE_WITH_RESOURCE_GROUP_NAME"
-subnet_id           = "REPLACE_WITH_TEST_SUBNET_ID"
+resource_group_name = "cst8918-final-project-group-5"
+subnet_id           = "10.1.0.0/16"
 location            = "canadacentral"
 
 # --- Person C fills these in ---
-acr_name    = "REPLACE_WITH_ACR_NAME"  # example: cst8918grp9acr (no hyphens, alphanumeric only)
-name_suffix = "REPLACE_WITH_GROUP_NUMBER" # example: grp9
+acr_name    = "cst8918grp5acr" # example: cst8918grp9acr (no hyphens, alphanumeric only)
+name_suffix = "grp5"           # example: grp9
 
 # prod_kubelet_identity_object_id = "" # fill in after first prod apply
 
