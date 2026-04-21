@@ -32,6 +32,17 @@ module "aks_test" {
   }
 }
 
+module "network_test" {
+  source              = "../../modules/basic-network-infrastructure"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  
+  tags = {
+    environment = "test"
+    project     = "cst8918-final-project"
+  }
+}
+
 output "cluster_name" {
   value = module.aks_test.cluster_name
 }

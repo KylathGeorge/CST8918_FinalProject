@@ -33,6 +33,17 @@ module "aks_prod" {
   }
 }
 
+module "network_prod" {
+  source              = "../../modules/basic-network-structure"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  
+  tags = {
+    environment = "prod"
+    project     = "cst8918-final-project"
+  }
+}
+
 output "cluster_name" {
   value = module.aks_prod.cluster_name
 }
