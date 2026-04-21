@@ -66,10 +66,12 @@ module "acr" {
   location            = var.location
   sku                 = "Basic"
 
-  aks_kubelet_principal_ids = [
+  # compact() removes the empty string so no invalid role assignment is created
+  # before prod_kubelet_identity_object_id has been filled in.
+  aks_kubelet_principal_ids = compact([
     module.aks_test.kubelet_identity_object_id,
-    var.prod_kubelet_identity_object_id, # paste from prod after first prod apply
-  ]
+    var.prod_kubelet_identity_object_id,
+  ])
 
   tags = {
     project    = "cst8918-final-project"
