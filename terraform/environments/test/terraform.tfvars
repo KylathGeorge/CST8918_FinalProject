@@ -1,6 +1,6 @@
 # --- Person A fills these in ---
 resource_group_name = "cst8918-final-project-group-5"
-location            = "canadacentral"
+location            = "southafricanorth"
 
 # --- Person C fills these in ---
 acr_name    = "cst8918grp5acr" # example: cst8918grp9acr (no hyphens, alphanumeric only)

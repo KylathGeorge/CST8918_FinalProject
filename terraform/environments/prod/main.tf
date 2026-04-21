@@ -41,6 +41,10 @@ module "network_prod" {
     environment = "prod"
     project     = "cst8918-final-project"
   }
+
+  # backend_prod creates the resource group — network module looks it up via
+  # data source, so it must wait until the RG exists.
+  depends_on = [module.backend_prod]
 }
 
 ###############################################################################

@@ -42,6 +42,10 @@ module "network_test" {
     environment = "test"
     project     = "cst8918-final-project"
   }
+
+  # backend_test creates the resource group — network module looks it up via
+  # data source, so it must wait until the RG exists.
+  depends_on = [module.backend_test]
 }
 
 ###############################################################################
