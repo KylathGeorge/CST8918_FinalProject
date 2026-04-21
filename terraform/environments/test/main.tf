@@ -6,12 +6,32 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.30"
+    }
   }
 }
 
 provider "azurerm" {
   features {}
 }
+
+###############################################################################
+# Kubernetes provider — points at the test AKS cluster
+# Uses the kube_config output added to Person B's module
+###############################################################################
+
+provider "kubernetes" {
+  host                   = module.aks_test.kube_config.host
+  client_certificate     = base64decode(module.aks_test.kube_config.client_certificate)
+  client_key             = base64decode(module.aks_test.kube_config.client_key)
+  cluster_ca_certificate = base64decode(module.aks_test.kube_config.cluster_ca_certificate)
+}
+
+###############################################################################
+# Person B — AKS cluster (test)
+###############################################################################
 
 module "aks_test" {
   source = "../../modules/aks"
@@ -32,6 +52,60 @@ module "aks_test" {
   }
 }
 
+###############################################################################
+# Person C — Azure Container Registry (shared across test + prod)
+# Lives in the test env state. Prod references it via data source.
+# AcrPull granted to both clusters — pass prod kubelet ID in via variable.
+###############################################################################
+
+module "acr" {
+  source = "../../modules/acr"
+
+  acr_name            = var.acr_name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  sku                 = "Basic"
+
+  aks_kubelet_principal_ids = [
+    module.aks_test.kubelet_identity_object_id,
+    var.prod_kubelet_identity_object_id, # paste from prod after first prod apply
+  ]
+
+  tags = {
+    project    = "cst8918-final-project"
+    managed-by = "terraform"
+  }
+}
+
+###############################################################################
+# Person C — Remix Weather App (test environment)
+###############################################################################
+
+module "weather_app_test" {
+  source = "../../modules/weather-app"
+
+  environment         = "test"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  name_suffix         = var.name_suffix
+
+  acr_login_server = module.acr.acr_login_server
+  weather_api_key  = var.weather_api_key
+
+  replica_count  = 1
+  redis_capacity = 0
+  redis_sku      = "Basic"
+
+  tags = {
+    environment = "test"
+    project     = "cst8918-final-project"
+  }
+}
+
+###############################################################################
+# Outputs
+###############################################################################
+
 output "cluster_name" {
   value = module.aks_test.cluster_name
 }
@@ -40,14 +114,31 @@ output "cluster_id" {
   value = module.aks_test.cluster_id
 }
 
-module "backend_test" {
-  source              = "../../modules/backend"
-  resource_group_name = "var.resource_group_name"
-  location            = var.location
-  group_number        = "5"
+output "acr_name" {
+  description = "ACR name — Person D needs this for az acr login"
+  value       = module.acr.acr_name
+}
 
-  tags = {
-    environment = "test"
-    project     = "cst8918-final-project"
-  }
+output "acr_login_server" {
+  description = "ACR login server — Person D uses this as the image prefix"
+  value       = module.acr.acr_login_server
+}
+
+output "test_kubelet_identity_object_id" {
+  description = "Paste this value into prod/terraform.tfvars as test_kubelet_identity_object_id"
+  value       = module.aks_test.kubelet_identity_object_id
+}
+
+output "test_namespace" {
+  value = module.weather_app_test.namespace
+}
+
+output "test_deployment" {
+  description = "Person D needs this for kubectl set image"
+  value       = module.weather_app_test.deployment_name
+}
+
+output "test_container" {
+  description = "Person D needs this for kubectl set image"
+  value       = module.weather_app_test.container_name
 }
