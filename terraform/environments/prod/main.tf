@@ -37,7 +37,7 @@ module "network_prod" {
   source              = "../../modules/basic-network-structure"
   resource_group_name = var.resource_group_name
   location            = var.location
-  
+
   tags = {
     environment = "prod"
     project     = "cst8918-final-project"
@@ -52,9 +52,17 @@ output "cluster_id" {
   value = module.aks_prod.cluster_id
 }
 
+output "azure_tenant_id" {
+  value = data.azurerm_client_config.current.tenant_id
+}
+
+output "azure_subscription_id" {
+  value = data.azurerm_client_config.current.subscription_id
+}
+
 module "backend_prod" {
   source              = "../../modules/backend"
-  resource_group_name = "var.resource_group_name"
+  resource_group_name = var.resource_group_name
   location            = var.location
   group_number        = "5"
 
@@ -62,4 +70,26 @@ module "backend_prod" {
     environment = "prod"
     project     = "cst8918-final-project"
   }
+}
+
+data "azurerm_client_config" "current" {}
+
+module "github_oidc_prod" {
+  source = "../../modules/github_oidc"
+
+  identity_name       = "github-prod-oidc"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  role_scope          = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
+  github_subject      = "repo:KylathGeorge/CST8918_FinalProject:ref:refs/heads/main"
+
+  tags = {
+    environment = "prod"
+    project     = "cst8918-final-project"
+  }
+}
+
+output "github_prod_client_id" {
+  description = "Client ID for GitHub Actions OIDC login in prod"
+  value       = module.github_oidc_prod.client_id
 }

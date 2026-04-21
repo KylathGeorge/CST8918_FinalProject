@@ -11,7 +11,7 @@ resource "azurerm_storage_account" "state" {
   location                 = azurerm_resource_group.backend.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  tags                     = var.tags  
+  tags                     = var.tags
 }
 
 # Create the Container for the .tfstate file
