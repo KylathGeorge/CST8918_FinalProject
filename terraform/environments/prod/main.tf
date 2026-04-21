@@ -40,3 +40,15 @@ output "cluster_name" {
 output "cluster_id" {
   value = module.aks_prod.cluster_id
 }
+
+module "backend_prod" {
+  source              = "../../modules/backend"
+  resource_group_name = "var.resource_group_name"
+  location            = var.location
+  group_number        = "5"
+
+  tags = {
+    environment = "prod"
+    project     = "cst8918-final-project"
+  }
+}
