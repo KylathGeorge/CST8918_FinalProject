@@ -1,0 +1,38 @@
+name: Docker Build and Push
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ACR_NAME: cst8918grp5acr
+  ACR_LOGIN_SERVER: cst8918grp5acr.azurecr.io
+
+jobs:
+  docker-build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/weather-app:${{ github.sha }} ./app
+          docker push ${{ env.ACR_LOGIN_SERVER }}/weather-app:${{ github.sha }}

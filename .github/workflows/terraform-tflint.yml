@@ -1,0 +1,25 @@
+name: Terraform TFLint
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  tflint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Init TFLint
+        run: tflint --init
+
+      - name: Run TFLint (test)
+        run: tflint --chdir=terraform/environments/test
+
+      - name: Run TFLint (prod)
+        run: tflint --chdir=terraform/environments/prod
