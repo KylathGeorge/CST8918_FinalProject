@@ -1,0 +1,73 @@
+name: Deploy to AKS
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ACR_LOGIN_SERVER: cst8918grp5acr.azurecr.io
+
+jobs:
+  deploy-test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set AKS Context (Test)
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: cst8918-final-project-group-5-test
+          cluster-name: aks-test
+
+      - name: Deploy to Test
+        run: |
+          kubectl set image deployment/weather-app \
+            weather-app=${{ env.ACR_LOGIN_SERVER }}/weather-app:${{ github.sha }} \
+            --namespace test
+
+  deploy-prod:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set AKS Context (Prod)
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: cst8918-final-project-group-5-prod
+          cluster-name: aks-prod
+
+      - name: Deploy to Prod
+        run: |
+          kubectl set image deployment/weather-app \
+            weather-app=${{ env.ACR_LOGIN_SERVER }}/weather-app:${{ github.sha }} \
+            --namespace prod
