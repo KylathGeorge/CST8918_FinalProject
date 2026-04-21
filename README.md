@@ -277,10 +277,10 @@ And Azure login will look like this:
 
 ## Team Notes
 
-- Person A is expected to provide the base network resources and subnet IDs
-- Person B provides the AKS and GitHub OIDC modules
-- Person C handles the application infrastructure
-- Person D uses the Azure identity outputs inside GitHub Actions workflows
+- Kylath was expected to provide the base network resources and subnet IDs
+- Muhire provides the AKS and GitHub OIDC modules
+- Aryan handles the application infrastructure
+- Kelvin uses the Azure identity outputs inside GitHub Actions workflows
 
 Because this is a team project, each member should work from a feature branch and open a pull request to `main`.
 
