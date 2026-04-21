@@ -1,6 +1,6 @@
 # --- Person A fills these in ---
 resource_group_name = "cst8918-final-project-group-5"
-subnet_id           = "10.1.0.0/16"
+subnet_id           = ""
 location            = "canadacentral"
 
 # --- Person C fills these in ---
