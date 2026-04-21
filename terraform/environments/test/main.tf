@@ -93,6 +93,11 @@ module "backend_test" {
 
 data "azurerm_client_config" "current" {}
 
+import {
+  to = module.backend_test.azurerm_resource_group.backend
+  id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
+}
+
 module "github_oidc_test" {
   source = "../../modules/github_oidc"
 
