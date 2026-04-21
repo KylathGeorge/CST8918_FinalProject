@@ -31,9 +31,9 @@ variable "sku" {
 }
 
 variable "aks_kubelet_principal_ids" {
-  description = "List of kubelet identity object IDs from Person B's AKS module (test + prod). These get AcrPull."
-  type        = list(string)
-  default     = []
+  description = "Map of kubelet identity object IDs keyed by static name (e.g. 'test', 'prod'). Keys must be known at plan time."
+  type        = map(string)
+  default     = {}
 }
 
 variable "tags" {

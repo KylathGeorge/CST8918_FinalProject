@@ -20,7 +20,9 @@ resource "azurerm_container_registry" "this" {
 ###############################################################################
 
 resource "azurerm_role_assignment" "aks_acr_pull" {
-  for_each = toset(var.aks_kubelet_principal_ids)
+  # Keys ("test", "prod") are static strings known at plan time.
+  # Values (object IDs) are apply-time — that's fine for for_each.
+  for_each = var.aks_kubelet_principal_ids
 
   scope                            = azurerm_container_registry.this.id
   role_definition_name             = "AcrPull"

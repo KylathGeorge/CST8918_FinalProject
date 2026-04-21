@@ -122,12 +122,12 @@ module "acr" {
   location            = var.location
   sku                 = "Basic"
 
-  # compact() removes the empty string so no invalid role assignment is created
-  # before prod_kubelet_identity_object_id has been filled in.
-  aks_kubelet_principal_ids = compact([
-    module.aks_test.kubelet_identity_object_id,
-    var.prod_kubelet_identity_object_id,
-  ])
+  # Keys are static strings (known at plan time) — Terraform can resolve for_each.
+  # Prod key is only included when the variable has been filled in after first prod apply.
+  aks_kubelet_principal_ids = merge(
+    { test = module.aks_test.kubelet_identity_object_id },
+    var.prod_kubelet_identity_object_id != "" ? { prod = var.prod_kubelet_identity_object_id } : {}
+  )
 
   tags = {
     project    = "cst8918-final-project"
