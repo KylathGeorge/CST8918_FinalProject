@@ -37,7 +37,7 @@ module "network_prod" {
   source              = "../../modules/basic-network-structure"
   resource_group_name = var.resource_group_name
   location            = var.location
-  
+
   tags = {
     environment = "prod"
     project     = "cst8918-final-project"

@@ -24,7 +24,7 @@ module "aks_test" {
   node_count          = 1
   vm_size             = "Standard_B2s"
   enable_auto_scaling = false
-  subnet_id           = var.subnet_id
+  subnet_id           = module.network_test.test_subnet_id
 
   tags = {
     environment = "test"
@@ -36,7 +36,7 @@ module "network_test" {
   source              = "../../modules/basic-network-infrastructure"
   resource_group_name = var.resource_group_name
   location            = var.location
-  
+
   tags = {
     environment = "test"
     project     = "cst8918-final-project"
