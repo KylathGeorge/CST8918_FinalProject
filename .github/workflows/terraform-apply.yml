@@ -36,13 +36,23 @@ jobs:
       - name: Terraform Init (test)
         run: terraform -chdir=terraform/environments/test init
 
-      # Import the resource group if it already exists in Azure but not in state.
-      # The || true means a failed import (e.g. clean environment) is not fatal.
-      - name: Import existing resource group (test)
+      # Import any backend resources that already exist in Azure but not in state.
+      # || true means a failed import (clean environment, resource not found) is not fatal.
+      - name: Import existing backend resources (test)
         run: |
           terraform -chdir=terraform/environments/test import \
             module.backend_test.azurerm_resource_group.backend \
             "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/cst8918-final-project-group-5-test" \
+            2>&1 || true
+
+          terraform -chdir=terraform/environments/test import \
+            module.backend_test.azurerm_storage_account.state \
+            "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/cst8918-final-project-group-5-test/providers/Microsoft.Storage/storageAccounts/st8918group5" \
+            2>&1 || true
+
+          terraform -chdir=terraform/environments/test import \
+            module.backend_test.azurerm_storage_container.state_container \
+            "https://st8918group5.blob.core.windows.net/tfstate" \
             2>&1 || true
 
       # Phase 1 — create all Azure resources except Kubernetes workloads.
