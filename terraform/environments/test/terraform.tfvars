@@ -1,5 +1,5 @@
 # --- Person A fills these in ---
-resource_group_name = "cst8918-final-project-group-5"
+resource_group_name = "cst8918-final-project-group-5-test"
 location            = "southafricanorth"
 
 # --- Person C fills these in ---
