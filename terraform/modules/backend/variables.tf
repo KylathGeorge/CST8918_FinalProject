@@ -4,8 +4,8 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  type        = string
-  default     = "Canada Central"
+  type    = string
+  default = "South Africa North"
 }
 
 variable "tags" {
