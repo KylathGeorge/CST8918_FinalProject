@@ -18,15 +18,15 @@ provider "azurerm" {
 }
 
 ###############################################################################
-# Kubernetes provider — points at the test AKS cluster
-# Uses the kube_config output added to Person B's module
+# Kubernetes provider — reads from KUBECONFIG env var set by the workflow.
+# Using explicit module outputs here would make the provider depend on a
+# computed value (kube_config is unknown until AKS exists), which causes
+# terraform import and the first apply to fail.
 ###############################################################################
 
 provider "kubernetes" {
-  host                   = module.aks_test.kube_config.host
-  client_certificate     = base64decode(module.aks_test.kube_config.client_certificate)
-  client_key             = base64decode(module.aks_test.kube_config.client_key)
-  cluster_ca_certificate = base64decode(module.aks_test.kube_config.cluster_ca_certificate)
+  # Credentials come from KUBECONFIG=/tmp/kubeconfig-test set in CI workflow.
+  # Locally, 'az aks get-credentials --name aks-test' populates ~/.kube/config.
 }
 
 ###############################################################################
