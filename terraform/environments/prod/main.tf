@@ -25,7 +25,7 @@ module "aks_prod" {
   enable_auto_scaling = true
   min_count           = 1
   max_count           = 3
-  subnet_id           = var.subnet_id
+  subnet_id           = module.network_prod.prod_subnet_id
 
   tags = {
     environment = "prod"
@@ -34,7 +34,7 @@ module "aks_prod" {
 }
 
 module "network_prod" {
-  source              = "../../modules/basic-network-structure"
+  source              = "../../modules/basic-network-infrastructure"
   resource_group_name = var.resource_group_name
   location            = var.location
 
