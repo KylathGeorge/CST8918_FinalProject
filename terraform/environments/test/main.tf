@@ -59,7 +59,7 @@ module "aks_test" {
   location            = var.location
   cluster_name        = "aks-test"
   dns_prefix          = "aks-test"
-  kubernetes_version  = "1.32"
+  kubernetes_version  = "1.31"
   node_count          = 1
   vm_size             = "Standard_B2s"
   enable_auto_scaling = false
@@ -106,6 +106,8 @@ module "github_oidc_test" {
     environment = "test"
     project     = "cst8918-final-project"
   }
+
+  depends_on = [module.backend_test]
 }
 
 ###############################################################################
@@ -133,6 +135,8 @@ module "acr" {
     project    = "cst8918-final-project"
     managed-by = "terraform"
   }
+
+  depends_on = [module.backend_test]
 }
 
 ###############################################################################
@@ -158,6 +162,8 @@ module "weather_app_test" {
     environment = "test"
     project     = "cst8918-final-project"
   }
+
+  depends_on = [module.backend_test]
 }
 
 ###############################################################################

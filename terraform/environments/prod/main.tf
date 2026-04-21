@@ -58,7 +58,7 @@ module "aks_prod" {
   location            = var.location
   cluster_name        = "aks-prod"
   dns_prefix          = "aks-prod"
-  kubernetes_version  = "1.32"
+  kubernetes_version  = "1.31"
   node_count          = 1
   min_count           = 1
   max_count           = 3
@@ -107,6 +107,8 @@ module "github_oidc_prod" {
     environment = "prod"
     project     = "cst8918-final-project"
   }
+
+  depends_on = [module.backend_prod]
 }
 
 ###############################################################################
@@ -118,6 +120,8 @@ module "github_oidc_prod" {
 data "azurerm_container_registry" "shared" {
   name                = var.acr_name
   resource_group_name = var.resource_group_name
+
+  depends_on = [module.backend_prod]
 }
 
 ###############################################################################
@@ -143,6 +147,8 @@ module "weather_app_prod" {
     environment = "prod"
     project     = "cst8918-final-project"
   }
+
+  depends_on = [module.backend_prod]
 }
 
 ###############################################################################
