@@ -61,7 +61,7 @@ output "azure_subscription_id" {
 
 module "backend_test" {
   source              = "../../modules/backend"
-  resource_group_name = "var.resource_group_name"
+  resource_group_name = var.resource_group_name
   location            = var.location
   group_number        = "5"
 
