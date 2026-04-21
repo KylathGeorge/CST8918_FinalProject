@@ -1,0 +1,51 @@
+name: Terraform Static Analysis
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  terraform-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+  terraform-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init (test)
+        run: terraform -chdir=terraform/environments/test init -backend=false
+
+      - name: Terraform Validate (test)
+        run: terraform -chdir=terraform/environments/test validate
+
+      - name: Terraform Init (prod)
+        run: terraform -chdir=terraform/environments/prod init -backend=false
+
+      - name: Terraform Validate (prod)
+        run: terraform -chdir=terraform/environments/prod validate
+
+  tfsec:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working_directory: terraform
