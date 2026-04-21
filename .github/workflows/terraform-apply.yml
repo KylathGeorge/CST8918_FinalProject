@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TF_VAR_weather_api_key: ${{ secrets.TF_VAR_WEATHER_API_KEY }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,21 +29,80 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      ###########################################################################
+      # TEST ENVIRONMENT
+      ###########################################################################
+
       - name: Terraform Init (test)
         run: terraform -chdir=terraform/environments/test init
 
+      # Import the resource group if it already exists in Azure but not in state.
+      # The || true means a failed import (e.g. clean environment) is not fatal.
       - name: Import existing resource group (test)
         run: |
           terraform -chdir=terraform/environments/test import \
             module.backend_test.azurerm_resource_group.backend \
             "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/cst8918-final-project-group-5-test" \
-            || true
+            2>&1 || true
 
-      - name: Terraform Apply (test)
+      # Phase 1 — create all Azure resources except Kubernetes workloads.
+      # AKS must exist before the Kubernetes provider can connect.
+      - name: Terraform Apply - Azure infrastructure (test)
+        run: |
+          terraform -chdir=terraform/environments/test apply -auto-approve \
+            -target=module.backend_test \
+            -target=module.network_test \
+            -target=module.aks_test \
+            -target=module.acr \
+            -target=module.github_oidc_test
+
+      # Fetch the kubeconfig now that AKS is guaranteed to exist.
+      - name: Get AKS credentials (test)
+        run: |
+          az aks get-credentials \
+            --resource-group cst8918-final-project-group-5-test \
+            --name aks-test \
+            --file /tmp/kubeconfig-test \
+            --overwrite-existing
+
+      # Phase 2 — deploy Kubernetes resources (namespace, deployment, service, secret).
+      - name: Terraform Apply - Kubernetes workloads (test)
+        env:
+          KUBECONFIG: /tmp/kubeconfig-test
         run: terraform -chdir=terraform/environments/test apply -auto-approve
+
+      ###########################################################################
+      # PROD ENVIRONMENT
+      ###########################################################################
 
       - name: Terraform Init (prod)
         run: terraform -chdir=terraform/environments/prod init
 
-      - name: Terraform Apply (prod)
+      - name: Import existing resource group (prod)
+        run: |
+          terraform -chdir=terraform/environments/prod import \
+            module.backend_prod.azurerm_resource_group.backend \
+            "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/cst8918-final-project-group-5-prod" \
+            2>&1 || true
+
+      - name: Terraform Apply - Azure infrastructure (prod)
+        run: |
+          terraform -chdir=terraform/environments/prod apply -auto-approve \
+            -target=module.backend_prod \
+            -target=module.network_prod \
+            -target=module.aks_prod \
+            -target=data.azurerm_container_registry.shared \
+            -target=module.github_oidc_prod
+
+      - name: Get AKS credentials (prod)
+        run: |
+          az aks get-credentials \
+            --resource-group cst8918-final-project-group-5-prod \
+            --name aks-prod \
+            --file /tmp/kubeconfig-prod \
+            --overwrite-existing
+
+      - name: Terraform Apply - Kubernetes workloads (prod)
+        env:
+          KUBECONFIG: /tmp/kubeconfig-prod
         run: terraform -chdir=terraform/environments/prod apply -auto-approve

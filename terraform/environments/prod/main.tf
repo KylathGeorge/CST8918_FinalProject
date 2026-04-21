@@ -18,14 +18,11 @@ provider "azurerm" {
 }
 
 ###############################################################################
-# Kubernetes provider — points at the prod AKS cluster
+# Kubernetes provider — reads from KUBECONFIG env var set by the workflow.
 ###############################################################################
 
 provider "kubernetes" {
-  host                   = module.aks_prod.kube_config.host
-  client_certificate     = base64decode(module.aks_prod.kube_config.client_certificate)
-  client_key             = base64decode(module.aks_prod.kube_config.client_key)
-  cluster_ca_certificate = base64decode(module.aks_prod.kube_config.cluster_ca_certificate)
+  # Credentials come from KUBECONFIG=/tmp/kubeconfig-prod set in CI workflow.
 }
 
 ###############################################################################
