@@ -9,9 +9,7 @@ variable "location" {
   default = "canadacentral"
 }
 
-variable "subnet_id" {
-  type = string
-}
+# subnet_id is sourced from module.network_prod.prod_subnet_id — not an input variable
 
 # --- Person C additions ---
 
